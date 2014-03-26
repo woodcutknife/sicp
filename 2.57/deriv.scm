@@ -1,12 +1,40 @@
 ;;;; Main
 
+; 中缀转前缀
+(define (infix-to-prefix exp)
+  (cond ((or (number? exp) (variable? exp)) exp)
+        ((or (eq? (cadr exp) '+) (eq? (cadr exp) '*))
+         (if (< (length exp) 4)
+           (list (cadr exp) (infix-to-prefix (car exp)) (infix-to-prefix (caddr exp)))
+           (list (cadr exp) (infix-to-prefix (car exp)) (infix-to-prefix (cddr exp)))))
+        ((or (eq? (cadr exp) '**) (eq? (cadr exp) '/)) (list (cadr exp) (infix-to-prefix (car exp)) (infix-to-prefix (caddr exp))))
+        (else (list (car exp) (infix-to-prefix (cadr exp))))))
+
+; 前缀转中缀
+(define (prefix-to-infix exp)
+  (cond ((or (number? exp) (variable? exp)) exp)
+        ((or (eq? (car exp) '+) (eq? (car exp) '*))
+         (if (< (length exp) 4)
+           (list (prefix-to-infix (cadr exp)) (car exp) (prefix-to-infix (caddr exp)))
+           (list (prefix-to-infix (cadr exp)) (car exp) (prefix-to-infix (cons (car exp) (cddr exp))))))
+        ((or (eq? (car exp) '**) (eq? (car exp) '/)) (list (prefix-to-infix (cadr exp)) (car exp) (prefix-to-infix (caddr exp))))
+        (else (list (car exp) (prefix-to-infix (cadr exp))))))
+
 ; 符号求导
 (define (deriv exp var)
   (install-packages)  
   (cond ((number? exp) 0)
         ((variable? exp)
          (if (same-variable? exp var) 1 0))
-        (else (simplify ((get 'deriv (operator exp)) (operands exp) var)))))
+        (else ((get 'deriv (operator exp)) (operands exp) var))))
+
+(define (deriv-prefix exp var)
+  (install-packages)
+  (simplify (deriv exp var)))
+
+(define (deriv-infix exp var)
+  (install-packages)
+  (prefix-to-infix (simplify (deriv (infix-to-prefix exp) var))))
 
 ; 符号化简
 (define (simplify exp)
@@ -207,7 +235,7 @@
   (define (simplify-proc operands)
     (let ((b (simplify (base operands)))
           (e (simplify (exponent operands))))
-      (cond ((and (or (integer? b) (ratnum? b)) (integer? e)) (expt b e))
+      (cond ((and (number? b) (number? e)) (expt b e))
             ((=number? e 0) 1)
             ((=number? e 1) b)
             (else (make-expontiation b e)))))
