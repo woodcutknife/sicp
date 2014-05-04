@@ -617,6 +617,56 @@
   (display val)
   (newline))
 
+(define (pretty-disp-term var term)
+  (pretty-disp (coeff term))
+  (if (= (order term) 0)
+    'ok
+    (begin
+      (display " ")
+      (display var)
+      (display "^")
+      (display (order term))
+      'ok)))
+
+(define (pretty-disp-polynomial p)
+  (let ((terms (term-list p)) (var (variable p)))
+    (display "(")
+    (if (empty-termlist? terms)
+      (display "0")
+      (let ((first (first-term terms)))
+        (pretty-disp-term var first)
+        (map-terms (lambda (term)
+               (if (=zero? (coeff term))
+                 'ok
+                 (begin
+                   (display " + ")
+                   (pretty-disp-term var term)
+                   'ok)))
+             (rest-terms terms))))
+    (display ")")))
+
+(define (pretty-disp-number n)
+  (display n))
+
+(define (pretty-disp-rational r)
+  (display "(")
+  (pretty-disp (numer r))
+  (display "/")
+  (pretty-disp (denom r))
+  (display ")"))
+
+(put 'pretty-disp '(polynomial) pretty-disp-polynomial)
+(put 'pretty-disp '(number) pretty-disp-number)
+(put 'pretty-disp '(rational) pretty-disp-rational)
+
+(define (pretty-disp gn)
+  (apply-generic 'pretty-disp gn))
+
+(define (show gn)
+  (pretty-disp gn)
+  (newline))
+  
+
 ;;; equ? on generic ordinary number
 (disp (equ? (create-number 1) (create-number 2)))
 (disp (equ? (create-number 2) (create-number 2)))
@@ -630,35 +680,35 @@
             (create-rational (create-number 2) (create-number 4))))
 
 ;;; operations betwen number and rational
-(disp (add r2 n2))
-(disp (mul n2 r2))
-(disp (sub n2 r5/13))
-(disp (div r5/13 n2))
-(disp (div (add r2 (mul n2 n2)) (sub (mul r2 r5/13) n2)))
+(show (add r2 n2))
+(show (mul n2 r2))
+(show (sub n2 r5/13))
+(show (div r5/13 n2))
+(show (div (add r2 (mul n2 n2)) (sub (mul r2 r5/13) n2)))
 (disp (equ? n2 r2))
 (disp (equ? (sub (add n2 r5/13) r5/13) n2))
 
 ;;; square of polynomial
-(disp (square p1))
-(disp (square (square p1)))
-(disp (square p2))
-(disp (square (square p2)))
-(disp (square p3))
+(show (square p1))
+(show (square (square p1)))
+(show (square p2))
+(show (square (square p2)))
+(show (square p3))
 
 ;;; negate, sub, equ? on p1, p2, p3
-(disp (sub p1 p3))
+(show (sub p1 p3))
 (disp (equ? p1 p1))
 (disp (equ? p2 p3))
 (disp (equ? p3 p1))
-(disp (negate p2))
-(disp (negate p3))
+(show (negate p2))
+(show (negate p3))
 
 ;;; operations between number and polynomial
-(disp (square p2-mixed))
+(show (square p2-mixed))
 (disp (equ? (sub (add p1 p3) p1) p3))
 
 ;;; apply-polynomial
-(disp (apply-polynomial p1 (create-number 2)))
-(disp (apply-polynomial p2 (create-numercial-polynomial 'x '(1 1))))
+(show (apply-polynomial p1 (create-number 2)))
+(show (apply-polynomial p2 (create-numercial-polynomial 'x '(1 1))))
 (define x (create-numercial-polynomial 'x '(1 0)))
 (disp (equ? (apply-polynomial p1 x) p1))
