@@ -1,0 +1,57 @@
+\documentclass[a4paper]{article}
+\usepackage{ctex}
+\usepackage{fontspec,xunicode,xltxtra}
+\usepackage[pagestyles]{titlesec}
+\usepackage{indentfirst}
+\usepackage[top=1in,bottom=1in,left=1.25in,right=1.25in]{geometry}
+\usepackage{amsmath}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[colorlinks,linkcolor=red,anchorcolor=Blue,citecolor=green]{hyperref}
+
+\setmainfont{Liberation Serif} 
+\setsansfont{Liberation Sans} 
+\setmonofont{WenQuanYi Micro Hei Mono}
+
+\newcommand{\ftt}[1]{\fbox{\texttt{#1}}}
+\punctstyle{kaiming}
+
+\newcommand{\Code}[1]{\mbox{\tt #1}}
+
+\setlength{\parskip}{2pt}
+
+\author{{信息科学技术学院~王迪~（学号：1300012802）}}
+
+\begin{document}
+
+\title{扩展通用算术包}
+\maketitle
+
+\section{项目内容}
+按照Exercise完成了如下扩充：
+\begin{enumerate}
+    \item \textbf{5.1A 5.1B} 定义了通用的\Code{equ?}谓词，为Number包添加了\Code{=number}谓词并安装到算术包中。
+    \item \textbf{5.3A 5.3B} 为Rational包添加了\Code{equ-rat?}谓词并安装到算术包中。
+    \item \textbf{5.4A 5.4B} 定义\Code{repnum->reprat}过程，并以此实现Number与Rational间的四则运算和相等性判断。
+    \item \textbf{5.5B} 定义\Code{create-numercial-polynomial}过程，通过一个变量符号和一个系数列表生成一个多项式。
+    \item \textbf{5.5C} 补充了\Code{map-terms}的定义，并定义了通用的\Code{pretty-disp}方法，以更加友好的方式输出Number、Rational和Polynomial。
+    \item \textbf{5.7A 5.7B 5.7C} 定义了\Code{negate-polynomial}过程，并以此实现了多项式的减法和相等性判断，且安装到算术包中。
+    \item \textbf{5.8A 5.8B} 定义\Code{repnum->reppoly}过程，并以此实现Number和Polynomial间的四则运算和相等性判断。
+    \item \textbf{5.9A 5.9B} 补充了\Code{apply-terms}的定义，使得通用多项式可以进行代入求值。
+\end{enumerate}
+
+\section{基本设计}
+顺应了提供代码的思路，可以看出核心思想就是数据导向的程序设计。
+
+通过良好设计的抽象屏障，不用关心通用算术包的底层数据结构，通过查看提供的接口就可以方便地进行功能扩充。另外，使用表格对通用数字的各种运算进行管理，结构简单、清晰。
+
+\section{所遇问题}
+因为提供的代码结构良好，所以在扩充功能时没有碰到什么大问题。
+
+有一个小问题：为了进行Number和Rational之间的运算，定义了\Code{NNmethod->NRmethod}过程将一个$(\mbox{RepNum},\mbox{RepNum}) \to T$的过程变为$(\mbox{RepNum},\mbox{RepRat}) \to T$的过程。但这样只能处理\Code{(number rational)}的参数类型，无法直接处理\Code{(rational number)}的参数类型。
+
+解决方法是写了一个类似的\Code{NNmethod->RNmethod}过程，这么做是最简单的解决方法，但一方面这出现了重复代码，要修改比较繁琐，另一方面也不易扩展到更多参数时的类型转换。
+
+\section{改进方法}
+我认为这个系统最大的缺陷在于进行类型转换很繁琐。一个改进方法就是课本上所说的，为每个类型添加从它到其他类型的转换过程，然后修改\Code{apply-generic}的定义，较为智能地去完成类型转换。
+
+\end{document}
