@@ -492,7 +492,7 @@
 
 ;;;  (RepPoly, RepNum) --> ({polynomial} X RepPoly)
 (define (/polynomial p num)
-  (make-polynomial (/poly p num)))
+  (make-polynomial (/poly p (create-number num))))
 
 (put 'div '(polynomial number) /polynomial)
 
@@ -706,6 +706,7 @@
 ;;; operations between number and polynomial
 (show (square p2-mixed))
 (disp (equ? (sub (add p1 p3) p1) p3))
+(show (div p1 n2))
 
 ;;; apply-polynomial
 (show (apply-polynomial p1 (create-number 2)))
