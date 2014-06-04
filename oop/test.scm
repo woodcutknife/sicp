@@ -76,3 +76,59 @@
 (print (zcor hv))
 
 (print (xcor hv))
+
+
+;;; News
+
+(define-class <vector> <object> xcor ycor)
+
+(define-method print ((v <vector>))
+  (print (cons (xcor v) (ycor v))))
+
+(define-method + ((v1 <vector>) (v2 <vector>))
+  (make <vector>
+        (xcor (+ (xcor v1) (xcor v2)))
+        (ycor (+ (ycor v1) (ycor v2)))))
+
+(define v1 
+  (make <vector>
+        (xcor (make <vector> (xcor 1) (ycor 5)))
+        (ycor 4)))
+
+(define v2
+  (make <vector>
+        (xcor (make <vector> (xcor -2) (ycor 2)))
+        (ycor -1)))
+
+(+ v1 v2)
+
+(ycor v2)
+
+(xcor v1)
+
+(define-class <3d-vector> <vector> zcor)
+
+(define v3
+  (make <3d-vector>
+        (xcor (make <vector> (xcor -1) (ycor 3)))
+        (ycor 2)
+        (zcor -3)))
+
+(zcor v3)
+
+(xcor v3)
+
+(+ v1 v3)
+
+(define-method + ((v1 <vector>) (v2 <3d-vector>))
+  (make <3d-vector>
+        (xcor (+ (xcor v1) (xcor v2)))
+        (ycor (+ (ycor v1) (ycor v2)))
+        (zcor (+ (zcor v2) 100))))
+
+(+ v1 v3)
+
+(define-method print ((v <3d-vector>))
+  (print (cons (xcor v) (cons (ycor v) (zcor v)))))
+
+(+ v1 v3)

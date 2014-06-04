@@ -1,0 +1,305 @@
+\documentclass[a4paper]{article}
+\usepackage{ctex}
+\usepackage{fontspec,xunicode,xltxtra}
+\usepackage[pagestyles]{titlesec}
+\usepackage{indentfirst}
+\usepackage[top=1in,bottom=1in,left=1.25in,right=1.25in]{geometry}
+\usepackage{amsmath}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[colorlinks,linkcolor=red,anchorcolor=Blue,citecolor=green]{hyperref}
+
+\setmainfont{Liberation Serif} 
+\setsansfont{Liberation Sans} 
+\setmonofont{WenQuanYi Micro Hei Mono}
+
+\newcommand{\ftt}[1]{\fbox{\texttt{#1}}}
+\punctstyle{kaiming}
+
+\newcommand{\code}[1]{\mbox{\tt #1}}
+
+\setlength{\parskip}{2pt}
+
+\outer\def\beginlisp{%
+  \begin{minipage}[t]{\linewidth}
+  \begin{list}{$\bullet$}{%
+    \setlength{\topsep}{0in}
+    \setlength{\partopsep}{0in}
+    \setlength{\itemsep}{0in}
+    \setlength{\parsep}{0in}
+    \setlength{\leftmargin}{1.5em}
+    \setlength{\rightmargin}{0in}
+    \setlength{\itemindent}{0in}
+  }\item[]
+  \obeyspaces
+  \obeylines \footnotesize\tt}
+
+\outer\def\endlisp{%
+  \end{list}
+  \end{minipage}
+  }
+
+{\obeyspaces\gdef {\ }}
+
+\author{{信息科学技术学院~王迪~（学号：1300012802）}}
+
+\begin{document}
+
+\title{面向对象的程序设计语言}
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Tutorial exercise 2}
+
+\beginlisp
+(define-class <vector> <object> xcor ycor)
+\null
+(define-method + ((v1 <vector>) (v2 <vector>))
+  (make <vector> (xcor (+ (get-slot v1 'xcor)
+                          (get-slot v2 'xcor)))
+                 (ycor (+ (get-slot v1 'ycor)
+                          (get-slot v2 'ycor)))))
+\null
+(define-method * ((v1 <vector>) (v2 <vector>))
+  (+ (* (get-slot v1 'xcor) 
+        (get-slot v2 'xcor)) 
+     (* (get-slot v1 'ycor) 
+        (get-slot v2 'ycor))))
+\null
+(define-method * ((v <vector>) (n <number>))
+  (make <vector> (xcor (* (get-slot v 'xcor)
+                          n))
+                 (ycor (* (get-slot v 'ycor)
+                          n))))
+(define-method * ((n <number>) (v <vector>))
+  (make <vector> (xcor (* n
+                          (get-slot v 'xcor)))
+                 (ycor (* n
+                          (get-slot v 'ycor)))))
+\null
+(define-generic-function length)
+(define-method length ((o <object>))
+  (sqrt (* o o)))
+\endlisp
+
+\section{Tutorial exercise 3}
+
+\code{paramlist-element-class}应该调用\code{tool-eval}，因为类名不一定以常量符号即形如\code{<object>}给出，可能是一个合法表达式，需要对其求值。这样一来，我们在\code{define-method}时便获得了更大的灵活性。
+
+\section{Tutorial exercise 4}
+
+首先，解释器发现\code{say}是一个generic function，于是通过\code{generic-function-methods}获取了该function的所有methods，一共有3个。然后因为\code{fluffy}是\code{<house-cat>}而非\code{<show-cat>}，所以会过滤掉1个，传给排序的methods其实只有2个：
+
+\begin{enumerate}
+    \item \code{say ((cat <cat>) (stuff <object>))}
+    \item \code{say ((cat <cat>) (stuff <number>))}
+\end{enumerate}
+
+按照\code{method-more-specific?}谓词排序后，第2个method获得了较高的优先级，所以就调用了它。
+
+\section{Tutorial exercise 5}
+
+\beginlisp
+(define-method print ((v <vector>))
+  (print (cons 
+           (get-slot v 'xcor)
+           (get-slot v 'ycor))))
+\endlisp
+
+\section{Lab exercise 6}
+
+在为\code{<vector>}定义\code{print}之前：
+
+\beginlisp
+TOOL==> (define v (make <vector> (xcor 1) (ycor 5)))
+*undefined*
+\null
+TOOL==> v
+(instance of <vector>)
+\null
+\endlisp
+
+定义了\code{print}后：
+
+\beginlisp
+TOOL==> (define v (make <vector> (xcor 1) (ycor 5)))
+*undefined*
+\null
+TOOL==> v
+(1 . 5)
+\endlisp
+
+\section{Lab exercise 7}
+
+我认为新的generic function应该限制在当前的eval环境中，而不是放进全局框架里。
+\begin{itemize}
+    \item 第一，从代码规范上来讲，如果一个generic function在全局范围内有作用，那么它应该显式地在全局进行定义，而不是在某个过程中被\code{define-method}隐式定义；
+    \item 第二，从作用域上来讲，局部定义的generic function只在局部起作用，不仅合乎逻辑，也防止了局部的function名称污染全局环境；
+    \item 第三，从效率上来讲，这样做提高了局部method寻找的效率，某种程度上也方便垃圾回收（一般来说，过程完成后，局部框架会回收，而因为加入的generic function与其他环境框架无关，所以也可以被回收）。
+\end{itemize}
+
+下面是一个例子：
+
+\beginlisp
+(define-method test ()
+  (define-method method-in-test ((n <number>))
+    (+ n 1)))
+\null
+(test)
+(method-in-test 1)
+\null
+\endlisp
+
+在我的修改版本中，最后一行调用会引发一个变量未约束的错误，而若是将generic function定义在了全局范围，最后一行调用则能成功，且返回值为2。
+
+我在过程\code{eval-define-method}中添加了如下代码：
+
+\beginlisp
+(let ((var (method-definition-generic-function exp)))
+  (if (variable? var)
+    (let ((b (binding-in-env var env)))
+      (if (or 
+            (not (found-binding? b))
+            (not (generic-function? (binding-value b))))
+        (let ((val (make-generic-function var)))
+          (define-variable! var val env))))))
+\null
+\endlisp
+
+下面是一些测试：
+
+\beginlisp
+TOOL==> (define-method inc ((n <number>)) (+ n 1))
+(added method to generic function: inc)
+\null
+TOOL==> (inc 5)
+6
+\null
+(define-method inc ((l <list>)) (cons 1 l))
+(added method to generic function: inc)
+\null
+TOOL==> (inc '(1 2 3))
+(1 1 2 3)
+\endlisp
+
+\section{Lab exercise 8}
+
+直接调用\code{tool-eval}实现，且基于了上一题的结果。在\code{eval-define-class}最后返回值前加入了如下代码：
+
+\beginlisp
+(for-each
+  (lambda (slot-name)
+    (tool-eval
+      `(define-method ,slot-name ((obj ,name)) (get-slot obj ',slot-name))
+      env))
+  all-slots)
+\null
+\endlisp
+
+代码第4行最左端是一个反引号。
+
+下面是一些测试：
+
+\beginlisp
+TOOL==> (define-class <person> <object> name sex)
+(defined class: <person>)
+\null
+TOOL==> (define me (make <person> (name 'wayne) (sex 'male)))
+*undefined*
+\null
+TOOL==> (name me)
+wayne
+\null
+TOOL==> (sex me)
+male
+\endlisp
+
+\section{Lab exercise 9}
+
+首先是一些关于\code{<vector>}的例子：
+
+\beginlisp
+TOOL==> (define-class <vector> <object> xcor ycor)
+(defined class: <vector>)
+\null
+TOOL==> (define-method print ((v <vector>))
+          (print (cons (xcor v) (ycor v))))
+(added method to generic function: print)
+\null
+TOOL==> (define-method + ((v1 <vector>) (v2 <vector>))
+          (make <vector>
+                (xcor (+ (xcor v1) (xcor v2)))
+                (ycor (+ (ycor v1) (ycor v2)))))
+(added method to generic function: +)
+\null
+TOOL==> (define v1 
+          (make <vector>
+                (xcor (make <vector> (xcor 1) (ycor 5)))
+                (ycor 4)))
+*undefined*
+TOOL==> (define v2
+          (make <vector>
+                (xcor (make <vector> (xcor -2) (ycor 2)))
+                (ycor -1)))
+*undefined*
+\null
+TOOL==> (+ v1 v2)
+((instance (class <vector> ((class <object> () ())) (xcor ycor)) (-1 7)) . 3)
+\null
+TOOL==> (ycor v2)
+-1
+\null
+TOOL==> (xcor v1)
+(1 . 5)
+\null
+\endlisp
+
+然后从\code{<vector>}类派生了\code{<3d-vector>}类：
+
+\beginlisp
+TOOL==> (define-class <3d-vector> <vector> zcor)
+(defined class: <3d-vector>)
+\null
+TOOL==> (define v3
+          (make <3d-vector>
+                (xcor (make <vector> (xcor -1) (ycor 3)))
+                (ycor 2)
+                (zcor -3)))
+*undefined*
+\null
+TOOL==> (zcor v3)
+-3
+\null
+TOOL==> (xcor v3)
+(-1 . 3)
+\null
+\endlisp
+
+对generic function的调用进行了测试：
+
+\beginlisp
+\null
+TOOL==> (+ v1 v3)
+((instance (class <vector> ((class <object> () ())) (xcor ycor)) (0 8)) . 6)
+\null
+TOOL==> (define-method + ((v1 <vector>) (v2 <3d-vector>))
+          (make <3d-vector>
+                (xcor (+ (xcor v1) (xcor v2)))
+                (ycor (+ (ycor v1) (ycor v2)))
+                (zcor (+ (zcor v2) 100))))
+(added method to generic function: +)
+\null
+TOOL==> (define-method print ((v <3d-vector>))
+          (print (cons (xcor v) (cons (ycor v) (zcor v)))))
+(added method to generic function: print)
+\null
+TOOL==> (+ v1 v3)
+((instance (class <vector> ((class <object> () ())) (xcor ycor)) (0 8)) 6 . 97)
+\null
+\endlisp
+
+可以看到7、8两个练习中的修改都工作得很好。
+
+\end{document}

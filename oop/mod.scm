@@ -9,7 +9,9 @@
   (let ((var (method-definition-generic-function exp)))
     (if (variable? var)
       (let ((b (binding-in-env var env)))
-        (if (not (found-binding? b))
+        (if (or 
+              (not (found-binding? b))
+              (not (generic-function? (binding-value b))))
           (let ((val (make-generic-function var)))
             (define-variable! var val env))))))
   (let ((gf (tool-eval (method-definition-generic-function exp) env)))
