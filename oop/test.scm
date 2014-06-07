@@ -41,45 +41,6 @@
 
 ;;; Lab exercise 9
 
-(define-class <cat> <object> size breed)
-
-(define garfield (make <cat> (size 6) (breed 'weird)))
-
-(print (breed garfield))
-
-(define-method 4-legged? ((x <cat>)) true)
-
-(define-method 4-legged? ((x <object>)) 'Who-knows?)
-
-(print (4-legged? garfield))
-
-(print (4-legged? 'Hal))
-
-(define-method say ((cat <cat>) (stuff <object>))
-               (print 'meow)
-               (print stuff))
-
-(define-class <house-cat> <cat> address)
-
-(define fluffy (make <house-cat> (size 'tiny)))
-
-(print (breed fluffy))
-
-(say garfield '(feed me))
-
-(say fluffy '(feed me))
-
-(define-class <3dvector> <vector> zcor)
-
-(define hv (make <3dvector> (xcor 1) (ycor 2) (zcor 3)))
-
-(print (zcor hv))
-
-(print (xcor hv))
-
-
-;;; News
-
 (define-class <vector> <object> xcor ycor)
 
 (define-method print ((v <vector>))
@@ -132,3 +93,64 @@
   (print (cons (xcor v) (cons (ycor v) (zcor v)))))
 
 (+ v1 v3)
+
+(define-class <cat> <object> size breed)
+
+(define garfield (make <cat> (size 6) (breed 'weird)))
+
+(breed garfield)
+
+(define-method 4-legged? ((x <cat>)) true)
+
+(define-method 4-legged? ((x <object>)) 'Who-knows?)
+
+(4-legged? garfield)
+
+(4-legged? 'Hal)
+
+(define-method say ((cat <cat>) (stuff <object>))
+  (print 'meow)
+  (print stuff))
+  
+(define-method say ((cat <cat>) (number <number>))
+  (print 'i-do-not-recognize-numbers)
+  (print 'oooooooooooooooooooooooops))
+  
+(say garfield '(feed me))
+
+(say garfield 563)
+
+(define-class <house-cat> <cat> address)
+
+(define fluffy (make <house-cat> (size 'tiny) (address 'America)))
+
+(breed fluffy)
+
+(size fluffy)
+
+(address fluffy)
+
+(say fluffy '(feed fluffy))
+
+(define-method say ((cat <house-cat>) (stuff <object>))
+  (print 'i-am-a-house-cat)
+  (print stuff)
+  (print 'i-am-specail!))
+
+(say garfield 'pardon?)
+
+(say fluffy 'pardon?)
+
+(say fluffy 443)
+
+(define-method shout ((stuff <object>) (cat <house-cat>))
+  (print 'shout!)
+  (print stuff))
+  
+(define-method shout ((number <number>) (cat <cat>))
+  (print 'shout-number!)
+  (print number))
+  
+(shout 43 fluffy)
+
+(shout 'you-are-great! fluffy)

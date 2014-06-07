@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.1415926-2.5-0.9999.3 (TeX Live 2013) (format=xelatex 2014.2.23)  5 JUN 2014 01:26
+This is XeTeX, Version 3.1415926-2.5-0.9999.3 (TeX Live 2013) (format=xelatex 2014.2.23)  7 JUN 2014 20:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1394,20 +1394,50 @@ Overfull \hbox (20.0pt too wide) in paragraph at lines 282--302
  []
 
 [5]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 305.
- [6]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 305.
+Overfull \hbox (20.0pt too wide) in paragraph at lines 307--330
+[][] 
+ []
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 333--355
+[][] 
+ []
+
+[6]
+Overfull \hbox (20.0pt too wide) in paragraph at lines 358--380
+[][] 
+ []
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 383--402
+[][] 
+ []
+
+[7]
+Overfull \hbox (20.0pt too wide) in paragraph at lines 405--413
+[][] 
+ []
+
+
+Overfull \hbox (20.0pt too wide) in paragraph at lines 416--438
+[][] 
+ []
+
+[8]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 463.
+ [9]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 463.
  (./report.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 305.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 305.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 463.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 463.
  ) 
 Here is how much of TeX's memory you used:
- 25005 strings out of 493938
- 496143 string characters out of 6148857
+ 25031 strings out of 493938
+ 496867 string characters out of 6148857
  517338 words of memory out of 5000000
- 27997 multiletter control sequences out of 15000+600000
- 7682 words of font info for 61 fonts, out of 8000000 for 9000
+ 28017 multiletter control sequences out of 15000+600000
+ 8184 words of font info for 69 fonts, out of 8000000 for 9000
  1144 hyphenation exceptions out of 8191
  63i,6n,50p,856b,364s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on report.pdf (6 pages).
+Output written on report.pdf (9 pages).

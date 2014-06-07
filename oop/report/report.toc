@@ -6,3 +6,8 @@
 \contentsline {section}{\numberline {6}Lab exercise 7}{3}{section.6}
 \contentsline {section}{\numberline {7}Lab exercise 8}{4}{section.7}
 \contentsline {section}{\numberline {8}Lab exercise 9}{4}{section.8}
+\contentsline {section}{\numberline {9}总结}{9}{section.9}
+\contentsline {subsection}{\numberline {9.1}完成工作}{9}{subsection.9.1}
+\contentsline {subsection}{\numberline {9.2}基本设计}{9}{subsection.9.2}
+\contentsline {subsection}{\numberline {9.3}所遇问题}{9}{subsection.9.3}
+\contentsline {subsection}{\numberline {9.4}如何改进}{9}{subsection.9.4}

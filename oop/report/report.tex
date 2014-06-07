@@ -302,4 +302,162 @@ TOOL==> (+ v1 v3)
 
 可以看到7、8两个练习中的修改都工作得很好。
 
+接下来是对\code{<cat>}类的测试。
+
+\beginlisp
+TOOL==> (define-class <cat> <object> size breed)
+(defined class: <cat>)
+\null
+TOOL==> (define garfield (make <cat> (size 6) (breed 'weird)))
+*undefined*
+\null
+TOOL==> (breed garfield)
+weird
+\null
+TOOL==> (define-method 4-legged? ((x <cat>)) true)
+(added method to generic function: 4-legged?)
+\null
+TOOL==> (define-method 4-legged? ((x <object>)) 'Who-knows?)
+(added method to generic function: 4-legged?)
+\null
+TOOL==> (4-legged? garfield)           
+\#t
+\null
+TOOL==> (4-legged? 'Hal)
+who-knows?
+\null
+\endlisp
+
+看到\code{4-legged?}谓词根据对象类型进行了正确的选择。
+
+\beginlisp
+TOOL==> (define-method say ((cat <cat>) (stuff <object>))
+  (print 'meow)
+  (print stuff))
+(added method to generic function: say)
+\null
+TOOL==> (define-method say ((cat <cat>) (number <number>))
+  (print 'i-do-not-recognize-numbers)
+  (print 'oooooooooooooooooooooooops))
+(added method to generic function: say)
+\null
+TOOL==> (say garfield '(feed me))
+meow
+(feed me)
+\#!unspecific
+\null
+TOOL==> (say garfield 563)
+i-do-not-recognize-numbers
+oooooooooooooooooooooooops
+\#!unspecific
+\null
+\endlisp
+
+\code{say}方法也根据参数类型选择了最为匹配的过程执行。
+
+\beginlisp
+TOOL==> (define-class <house-cat> <cat> address)
+(defined class: <house-cat>)
+\null
+TOOL==> (define fluffy (make <house-cat> (size 'tiny) (address 'America)))
+*undefined*
+\null
+TOOL==> (breed fluffy)
+*undefined*
+\null
+TOOL==> (size fluffy)
+tiny
+\null
+TOOL==> (address fluffy)
+america
+\null
+TOOL==> (say fluffy '(feed fluffy))
+meow
+(feed fluffy)
+\#!unspecific
+\null
+\endlisp
+
+可以看到\code{<house-cat>}类正确地继承了\code{<cat>}类的属性和方法。
+
+\beginlisp
+TOOL==> (define-method say ((cat <house-cat>) (stuff <object>))
+  (print 'i-am-a-house-cat)
+  (print stuff)
+  (print 'i-am-specail!))
+(added method to generic function: say)
+\null
+TOOL==> (say garfield 'pardon?)
+meow
+pardon?
+\#!unspecific
+\null
+TOOL==> (say fluffy 'pardon?)
+i-am-a-house-cat
+pardon?
+i-am-specail!
+\#!unspecific
+\null
+\endlisp
+
+对\code{<house-cat>}类重写了\code{say}方法，发现改变了\code{<house-cat>}实例的行为，而\code{<cat>}的实例的行为不变。
+
+\beginlisp
+TOOL==> (say fluffy 443)
+i-am-a-house-cat
+443
+i-am-specail!
+\#!unspecific
+\null
+\endlisp
+
+这是测试TOOL在\code{say <cat> <number>}与\code{say <house-cat> <object>}之间的取舍。行为跟预期相符：选择了后者，因为考察第一个参数的类型，\code{<house-cat>}要比\code{<cat>}更加匹配一点。和下面的测试做对比：
+
+\beginlisp
+TOOL==> (define-method shout ((stuff <object>) (cat <house-cat>))
+  (print 'shout!)
+  (print stuff))
+(added method to generic function: shout)
+\null
+TOOL==> (define-method shout ((number <number>) (cat <cat>))
+  (print 'shout-number!)
+  (print number))
+(added method to generic function: shout)
+\null
+TOOL==> (shout 43 fluffy)
+shout-number!
+43
+\#!unspecific
+\null
+TOOL==> (shout 'you-are-great! fluffy)
+shout!
+you-are-great!
+\#!unspecific
+\null
+\endlisp
+
+可见在方法调用时排在前面的参数类型的确要重要一些。
+
+以上测试代码均在\code{test.scm}文件中。
+
+\section{总结}
+
+\subsection{完成工作}
+
+按照项目说明文件一步一步做下来的，所做的工作在前面的部分已经详细说明了。
+
+\subsection{基本设计}
+
+考虑TOOL语言本身，它是数据导向的，通过良好设置的抽象屏障，使得对TOOL进行功能扩充非常方便，不用深入底层数据结构。
+
+但是在有些时候还是需要去查看底层数据结构，比如我做Lab exercise 7时我查看了binding的实现方式，这是因为底层API并不完备，缺少一个询问变量是否存在的谓词。这可以通过补充API很好的解决。
+
+\subsection{所遇问题}
+
+基本上没遇到什么大问题，项目说明很清楚。
+
+\subsection{如何改进}
+
+Lab 10是一个关于多重继承的语言设计，但我还没有一个完整的想法，故并未写在作业中。多继承在现代编程语言中似乎并不多见，所以我在考虑能否像Java或者Ruby那样，添加接口或者模块的功能。另外我对generic-function的想法有一些疑惑，总觉得一个类的实例的方法应该只属于这个类的实例，在全局出现一个类似索引的东西，感觉不是特别优美。总而言之，还是有很多可以改进的地方，需要更深入的思考。
+
 \end{document}
